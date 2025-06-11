@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Summarizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .chat-message {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards;
+        }
+        .chat-message:nth-child(1) { animation-delay: 0.1s; }
+        .chat-message:nth-child(2) { animation-delay: 0.2s; }
+        .chat-message:nth-child(3) { animation-delay: 0.3s; }
+        .glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-dark-900 min-h-screen font-sans transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header with theme toggle -->
+        <header class="flex justify-between items-center mb-10">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-primary-600 rounded-lg text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Doc<span class="text-primary-600">Genius</span></h1>
+            </div>
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+                </svg>
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Upload Card -->
+        <div class="bg-white dark:bg-dark-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 transform hover:scale-[1.01] mb-8">
+            <div class="p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-2">Document Summarizer</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Upload your document and get an AI-powered summary with key insights.</p>
+                
+                <form id="summarizeForm" class="space-y-6">
+                    <div class="flex items-center justify-center w-full">
+                        <label for="document" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">PDF, TXT (MAX. 10MB)</p>
+                            </div>
+                            <input id="document" type="file" class="hidden" accept=".pdf,.txt" />
+                        </label>
+                    </div>
+
+                    <div id="fileNameDisplay" class="hidden text-sm text-gray-600 dark:text-gray-300 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-md"></div>
+                    
+                    <button type="submit" id="submitBtn" class="w-full flex items-center justify-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-[1.02]">
+                        <span id="submitText">Generate Summary</span>
+                        <svg id="submitSpinner" class="hidden w-5 h-5 ml-2 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Progress Bar (Hidden by default) -->
+        <div id="progressContainer" class="hidden mb-8">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Processing document...</span>
+                <span id="progressPercent" class="text-sm font-medium text-primary-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                <div id="progressBar" class="bg-primary-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Results Section (Hidden by default) -->
+        <div id="results" class="hidden bg-white dark:bg-dark-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 fade-in">
+            <!-- Summary Section -->
+            <div class="border-b border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Document Summary</h2>
+                    <button id="copySummary" class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="summary" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"></div>
+            </div>
+            
+            <!-- Chat Interface for Context -->
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Key Context</h2>
+                <div id="context" class="space-y-4">
+                    <!-- Context chunks will be inserted here as chat messages -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State Illustration -->
+        <div id="emptyState" class="flex flex-col items-center justify-center py-12">
+            <div class="relative w-64 h-64 mb-6">
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-40 bg-primary-100 dark:bg-primary-900 rounded-full opacity-20 animate-pulse-slow"></div>
+                <div class="absolute top-8 left-1/2 transform -translate-x-1/2 w-48 h-48 bg-primary-200 dark:bg-primary-800 rounded-full opacity-20 animate-pulse-slow animation-delay-1000"></div>
+                <div class="absolute top-16 left-1/2 transform -translate-x-1/2 w-56 h-56 bg-primary-300 dark:bg-primary-700 rounded-full opacity-20 animate-pulse-slow animation-delay-2000"></div>
+                <div class="absolute top-24 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full opacity-20 animate-pulse-slow animation-delay-3000"></div>
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-full flex items-center justify-center">
+                    <svg class="w-32 h-32 text-primary-600 animate-float" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">Upload a document to get started</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-center max-w-md">Drag and drop your PDF or text file above to generate an AI-powered summary with key insights.</p>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        
+        // Check for saved theme preference or use system preference
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        });
+
+        // File upload handling
+        const documentInput = document.getElementById('document');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        
+        documentInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const fileName = e.target.files[0].name;
+                fileNameDisplay.textContent = `Selected: ${fileName}`;
+                fileNameDisplay.classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+            } else {
+                fileNameDisplay.classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        });
+
+        // Drag and drop functionality
+        const dropArea = document.querySelector('label[for="document"]');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            documentInput.files = files;
+            const event = new Event('change');
+            documentInput.dispatchEvent(event);
+        }
+
+        // Form submission with progress animation
+        document.getElementById('summarizeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = document.getElementById('document').files[0];
+            if (!file) {
+                showToast('Please select a file first', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            submitText.textContent = 'Processing...';
+            submitSpinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            
+            // Show progress bar
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            progressContainer.classList.remove('hidden');
+            
+            // Simulate progress (in a real app, you'd use actual progress events)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                }
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${Math.floor(progress)}%`;
+            }, 300);
+            
+            const formData = new FormData();
+            formData.append('document', file);
+            
+            try {
+                const response = await fetch('/summarize', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Complete progress
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                
+                // Display results
+                document.getElementById('summary').innerHTML = data.summary;
+                
+                const contextContainer = document.getElementById('context');
+                contextContainer.innerHTML = data.context_chunks.map((chunk, index) => `
+                    <div class="chat-message flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}">
+                        <div class="${index % 2 === 0 ? 'bg-primary-100 dark:bg-primary-900/50' : 'bg-gray-100 dark:bg-gray-700'} max-w-3/4 rounded-lg p-4 shadow-sm">
+                            <p class="text-gray-700 dark:text-gray-300">${chunk}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                
+                // Scroll to results
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                
+                showToast('Summary generated successfully!', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error generating summary', 'error');
+            } finally {
+                // Reset form
+                submitText.textContent = 'Generate Summary';
+                submitSpinner.classList.add('hidden');
+                submitBtn.disabled = false;
+                
+                // Hide progress after delay
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                }, 1000);
+            }
+        });
+
+        // Copy summary to clipboard
+        document.getElementById('copySummary').addEventListener('click', () => {
+            const summaryText = document.getElementById('summary').textContent;
+            navigator.clipboard.writeText(summaryText).then(() => {
+                showToast('Summary copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showToast('Failed to copy summary', 'error');
+            });
+        });
+
+        // Toast notification function
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium flex items-center space-x-2 transition-all duration-300 transform translate-y-10 opacity-0 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            toast.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${
+                        type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'
+                    }" />
+                </svg>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+            
+            // Animate out after delay
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0');
+                
+                // Remove from DOM after animation
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize empty state
+        if (!documentInput.files.length) {
+            document.getElementById('emptyState').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
