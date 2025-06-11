@@ -1,6 +1,6 @@
 Here's a comprehensive README.md file for your RAG-based document summarizer:
 
-```markdown
+
 # RAG-based Document Summarizer
 
 A Retrieval-Augmented Generation (RAG) system for summarizing documents, supporting PDF, TXT, and DOC/DOCX formats. The system extracts key information using semantic search and generates concise summaries with LLMs.
