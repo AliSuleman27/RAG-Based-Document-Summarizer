@@ -1,7 +1,10 @@
+# summarizer.py
 from langchain.chains import LLMChain
 from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from langchain.callbacks import get_openai_callback
 from config import Config
+from typing import Dict, Any
 
 class Summarizer:
     def __init__(self):
@@ -18,6 +21,17 @@ class Summarizer:
             ("human", "Context:\n{context}\n\nSummary:")
         ])
     
-    def summarize(self, context: str) -> str:
-        chain = LLMChain(llm=self.llm, prompt=self.prompt)
-        return chain.run(context=context)
+    def summarize(self, context: str) -> Dict[str, Any]:
+        """Summarize context using LangChain callback to capture token usage."""
+        with get_openai_callback() as cb:
+            chain = LLMChain(llm=self.llm, prompt=self.prompt)
+            result = chain.run(context=context)
+            
+            return {
+                "summary": result,
+                "token_usage": {
+                    "prompt_tokens": cb.prompt_tokens,
+                    "completion_tokens": cb.completion_tokens,
+                    "total_tokens": cb.total_tokens
+                }
+            }

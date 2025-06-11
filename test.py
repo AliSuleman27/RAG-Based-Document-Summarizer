@@ -12,7 +12,7 @@ from config import Config
 pipeline = SummarizationPipeline()
 embedder = EmbeddingManager()
 scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
-dataset = pd.read_csv('data/validation.csv').head(5)
+dataset = pd.read_csv('data/validation.csv').head(10)
 
 
 def cosine_sim(text_a: str, text_b: str) -> float:

@@ -154,6 +154,27 @@
                 </div>
                 <div id="summary" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"></div>
             </div>
+
+            <!-- Add this after the summary section in the results div -->
+<div class="border-t border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-700/50">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Usage Statistics</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Processed Text</div>
+            <div id="processedText" class="text-xl font-semibold text-primary-600 dark:text-primary-400">--</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">characters</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Chunks Processed</div>
+            <div id="chunkCount" class="text-xl font-semibold text-primary-600 dark:text-primary-400">--</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Tokens</div>
+            <div id="totalTokens" class="text-xl font-semibold text-primary-600 dark:text-primary-400">--</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="tokenBreakdown">Prompt: --, Completion: --</div>
+        </div>
+    </div>
+</div>
             
             <!-- Chat Interface for Context -->
             <div class="p-6">
@@ -318,6 +339,7 @@
                 }
                 
                 const data = await response.json();
+
                 
                 // Complete progress
                 clearInterval(progressInterval);
@@ -335,12 +357,26 @@
                         </div>
                     </div>
                 `).join('');
+
                 
                 document.getElementById('results').classList.remove('hidden');
                 document.getElementById('emptyState').classList.add('hidden');
                 
                 // Scroll to results
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+                                // In the form submission success handler, after displaying the summary:
+                                document.getElementById('processedText').textContent = data.processed_text_length.toLocaleString();
+                document.getElementById('chunkCount').textContent = data.chunk_count;
+                if (data.token_usage) {
+                    document.getElementById('totalTokens').textContent = data.token_usage.total_tokens.toLocaleString();
+                    document.getElementById('tokenBreakdown').textContent = 
+                        `Prompt: ${data.token_usage.prompt_tokens.toLocaleString()}, Completion: ${data.token_usage.completion_tokens.toLocaleString()}`;
+                } else {
+                    document.getElementById('totalTokens').textContent = 'N/A';
+                    document.getElementById('tokenBreakdown').textContent = 'Token usage data not available';
+                }
+
                 
                 showToast('Summary generated successfully!', 'success');
             } catch (error) {

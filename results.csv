@@ -1,0 +1,2 @@
+,mmr_lambda,llm,rouge1_avg,rouge2_avg,rougeL_avg,semantic_similarity_avg
+0,0.5,llama3-70b-8192,0.3170687755963211,0.10213766348647771,0.19392011402219161,0.5183738158585234
