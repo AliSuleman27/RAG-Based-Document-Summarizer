@@ -5,4 +5,7 @@ sentence-transformers
 flask
 python-dotenv
 groq
-pdfminer.six
+pypdf2
+langchain-groq
+rouge-score
+datasets
