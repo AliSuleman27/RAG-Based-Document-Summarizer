@@ -1,4 +1,4 @@
-| Config | Model           | Chunk Size | Overlap | k | ROUGE-1    | ROUGE-2    | ROUGE-L    | Semantic Sim | **Average Score** |
+| Config | Model           | Chunk Size | Overlap | k | ROUGE-1    | ROUGE-2    | ROUGE-L    | Semantic Sim B/W generated and actual | **Average Score** |
 | ------ | --------------- | ---------- | ------- | - | ---------- | ---------- | ---------- | ------------ | ----------------- |
 | A      | llama3-70b-8192 | 1000       | 200     | 7 | 0.3910     | **0.1423** | **0.2506** | 0.6336       | **0.3544**        |
 | B      | llama3-70b-8192 | 500        | 200     | 5 | 0.3911 | 0.1334     | 0.2343     | 0.6638   | **0.3556**        |
