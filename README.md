@@ -1,5 +1,3 @@
-Here's a comprehensive README.md file for your RAG-based document summarizer:
-
 
 # RAG-based Document Summarizer
 
