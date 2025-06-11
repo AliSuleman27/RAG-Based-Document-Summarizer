@@ -8,5 +8,5 @@ class Config:
     GROQ_MODEL = "llama3-70b-8192"
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     CHUNK_SIZE = 500
-    CHUNK_OVERLAP = 100
+    CHUNK_OVERLAP = 150
     MMR_LAMBDA = 0.5  # Diversity vs relevance balance (0-1)

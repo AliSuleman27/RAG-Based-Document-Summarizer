@@ -20,7 +20,7 @@ class Retriever:
         )
         return self
     
-    def retrieve(self, query: str, k: int = 5) -> List[Document]:
+    def retrieve(self, query: str, k: int = 7) -> List[Document]:
         if not self.vector_store:
             raise ValueError("Vector store not initialized")
         
