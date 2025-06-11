@@ -11,6 +11,7 @@ A Retrieval-Augmented Generation (RAG) system for summarizing documents, support
 - Summary generation with Groq's Llama3-70b
 - Configurable parameters for retrieval and generation
 - Flask-based web interface
+- Eval Metrics used - Semantic Similarity of Generated vs Actual Embeddings
 
 ## Setup
 
