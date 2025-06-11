@@ -26,7 +26,7 @@ A Retrieval-Augmented Generation (RAG) system for summarizing documents, support
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/document-summarizer.git
+   git clone https://github.com/AliSuleman27/RAG-Based-Document-Summarizer.git
    cd document-summarizer
    ```
 
